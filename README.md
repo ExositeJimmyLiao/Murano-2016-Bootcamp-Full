@@ -22,6 +22,37 @@ A device is sending data with resources `temperature` and `humidity` to your Pro
 1. WARNING: This is reference code, there are no guarantees.  It's easy to change the code and have it break.  Tip: Use source control when editing!
 2. WARNING: Using code that refreshes often in browser windows carefully.  You can easily kill your browser.
 
+### Timer Service API Code:
+
+```lua
+local identifier = "F18F8C7FCF5C"
+local read = kv_read_opt(identifier, true)
+local temperature = tonumber(read.temperature)
+
+local title = "Exosite Swimming Pool Notification"
+local message = "Wellcome Exosite Swimming Pool :D"
+
+if temperature >= 80 then
+  message = "Today's temperature is " .. temperature .. "F" .. ".\nIs really hot right?\nWhy don't you come Exosite to swim with us :D"
+elseif 70 <= temperature and temperature < 80 then
+  message = "Today's temperature is " .. temperature .. "F" .. ".\nIt's a good time to practice swimming~"
+elseif temperature < 70 then
+  message = "Today's temperature is " .. temperature .. "F" .. ".\nToday is cold so we have spa for you!"
+end
+
+Twilio.postMessage({
+    From = "+16122551754",
+    To = "+886xxxxxxxxx",
+    Body = title .. "\n" .. message
+})
+
+Email.send({
+  to = "yyyyyyyyy@exosite.com",
+  subject = title,
+  text = message
+})
+
+```
 
 ### Examples of what it looks like
 

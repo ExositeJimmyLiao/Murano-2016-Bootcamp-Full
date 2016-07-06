@@ -1,10 +1,10 @@
 --#ENDPOINT GET /development/test
 return 'Hello World! \r\nI am a test Murano Solution API Route entpoint'
 
---#ENDPOINT GET /development/storage/keyvalue
+--#ENDPOINT GET /development/storage/keyvalue/{identifier}
 -- Description: Show current key-value data for a specific unique device or for full solution
--- Parameters: ?device=<uniqueidentifier>
-local identifier = tostring(request.parameters.device)
+-- Parameters: ?identifier=<uniqueidentifier>
+local identifier = tostring(request.parameters.identifier)
 
 if identifier == 'all' or identifier == "nil" then
   local response_text = 'Getting Key Value Raw Data for: Full Solution: \r\n'
@@ -31,12 +31,12 @@ else
   return 'Getting Key Value Raw Data for: Device Identifier: '..identifier..'\r\n'..to_json(resp)
 end
 
---#ENDPOINT GET /development/storage/timeseries
+--#ENDPOINT GET /development/storage/timeseries/{identifier}
 -- Description: Show current time-series data for a specific unique device
 -- Parameters: ?identifier=<uniqueidentifier>
 local identifier = tostring(request.parameters.identifier)
 
-if true then
+if tostring ~= nil and tostring ~= "" then
   local data = {}
   -- Assumes temperature and humidity data device resources
   out = Timeseries.query({
@@ -46,11 +46,13 @@ if true then
 
   return 'Getting Last 20 Time Series Raw Data Points for: '..identifier..'\r\n'..to_json(out)
 else
-  http_error(403, response)
+  response.message = "Conflict - Identifier Incorrect"
+  response.code = 404
+  return
 end
 
 
---#ENDPOINT GET /development/device/data
+--#ENDPOINT GET /development/device/data/{identifier}/{window}
 -- Description: Get timeseries data for specific device
 -- Parameters: ?identifier=<uniqueidentifier>&window=<number>
 local identifier = tostring(request.parameters.identifier) -- ?identifier=<uniqueidentifier>
@@ -65,5 +67,61 @@ if true then
   data['timeseries'] = out
   return data
 else
-  http_error(403, response)
+  response.message = "Conflict - Identifier Incorrect"
+  response.code = 404
+  return
 end
+
+--#ENDPOINT POST /development/lightbulb/{identifier}/{fromhour}/{tohour}/{isauto}
+-- Description: POST lightbulb automatically turned on form fromhour to tohour
+function getHour(utc)
+  return tonumber(os.date("%H", os.time() + utc * 60 * 60))
+end
+
+local identifier = tostring(request.parameters.identifier)
+local fromhour = tonumber(request.parameters.fromhour)
+local tohour = tonumber(request.parameters.tohour)
+local isauto = tostring(request.parameters.isauto)
+
+local nowtime = getHour(8)
+local ret
+if fromhour <= nowtime and nowtime <= tohour then
+  ret = write(identifier, "state", isauto)
+else
+  isauto = "0"
+  ret = write(identifier, "state", isauto)
+end
+
+ret.lightbulb = isauto
+return ret
+
+--#ENDPOINT POST /timertrigger
+-- Description: create a weekly trigger to send SMS to user (timerid = sms_trigger)
+local alert = {
+  message = "trigger",
+  timer = 3 * 60,
+  timerid = "sms_trigger",
+  timer_running = true
+}
+
+Timer.sendInterval({
+    message = alert.message,
+    duration = alert.timer * 1000,
+    timer_id = alert.timerid
+})
+
+--#ENDPOINT POST /canceltrigger
+-- Description: cancel sms_trigger trigger
+local parameters = {
+ ["timer_id"] = "sms_trigger"
+}
+
+return Timer.cancel(parameters)
+
+--#ENDPOINT POST /sms
+-- Description: sms test
+return Twilio.postMessage({
+  From = "+16122551754",
+  To = "+886935658234",
+  Body = "Exosite Swimming Pool Notification\n"
+})
