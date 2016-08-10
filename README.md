@@ -25,7 +25,7 @@ A device is sending data with resources `temperature` and `humidity` to your Pro
 ### Timer Service API Code:
 
 ```lua
-local identifier = "F18F8C7FCF5C"
+local identifier = "YOUR_IDENTIFIER"
 local read = kv_read_opt(identifier, true)
 local temperature = tonumber(read.temperature)
 
