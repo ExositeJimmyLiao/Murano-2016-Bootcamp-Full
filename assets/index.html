@@ -7,6 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.time.js"></script>
     <script src="script.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400" rel="stylesheet">
 </head>
 
@@ -77,11 +78,10 @@
                     <p>
                         <input id="tohour" type="text" value="24" style="text-align: right; width:10em"></input> O'clock
                     </p>
-                    <p>
-                        <label>
-                            <input id="mylight" type="checkbox" name="mylight" value="light" checked> On/Off
-                        </label>
-                    </p>
+                    <label class="switch">
+                        <input id="mylight" type="checkbox" name="mylight" value="light" checked>
+                        <div class="slider round"></div>
+                    </label>
                 </td>
             </tr>
         </table>
